@@ -1,0 +1,16 @@
+apiVersion: v2
+name: jwt
+version: 0.0.1-SNAPSHOT
+description: case
+type: application
+keywords:
+  - jwt
+  - spring-boot
+  - java
+home: https://github.com/mateusbrazza/jwt
+sources:
+  - https://github.com/mateusbrazza/jwt
+maintainers:
+  - name: mateusbrazza
+    email: mateusjoaquim@live.com
+    url: https://github.com/mateusbrazza

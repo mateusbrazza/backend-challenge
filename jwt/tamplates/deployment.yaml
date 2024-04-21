@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.image.repository | replace "/" "-" }}
+  labels:
+    app: {{ .Values.image.repository | replace "/" "-" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.image.repository | replace "/" "-" }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.image.repository | replace "/" "-" }}
+    spec:
+      containers:
+        - name: {{ .Values.image.repository }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: LOG_LEVEL
+              value: {{ .Values.env.LOG_LEVEL }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+          volumeMounts:
+          {{- if .Values.persistence.enabled }}
+          - name: storage
+            mountPath: /path/to/mount
+          {{- end }}
+      volumes:
+      {{- if .Values.persistence.enabled }}
+      - name: storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.image.repository | replace "/" "-" }}-pvc
+      {{- end }}
+  strategy:
+    type: {{ .Values.updateStrategy.type }}

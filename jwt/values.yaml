@@ -1,0 +1,37 @@
+# Número de réplicas
+replicaCount: 1
+
+# Informações da imagem do contêiner
+image:
+  repository: mateusbrazza/jwt
+  tag: "0.0.1-SNAPSHOT"
+  pullPolicy: IfNotPresent
+
+# Configurações do serviço
+service:
+  type: ClusterIP
+  port: 8080
+
+# Configurações de persistência
+persistence:
+  enabled: false
+  storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+# Configurações de ambiente
+env:
+  LOG_LEVEL: "info"
+
+# Recursos (limites e pedidos de CPU/memória)
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+
+# Configurações de política de atualização
+updateStrategy:
+  type: RollingUpdate
