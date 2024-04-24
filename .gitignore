@@ -35,3 +35,4 @@ build/
 # Terraform ignore rules
 .terraform*
 terraform.tfstate*
+terraform.tfvars*

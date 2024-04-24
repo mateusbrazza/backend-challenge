@@ -1,57 +1,33 @@
-provider "aws" {
-  region = "us-east-1"
+###### root/main.tf
+
+module "eks" {
+  source                  = "./modules/eks"
+  aws_public_subnet       = module.vpc.aws_public_subnet
+  vpc_id                  = module.vpc.vpc_id
+  cluster_name            = "module-eks-${random_string.suffix.result}"
+  endpoint_public_access  = true
+  endpoint_private_access = false
+  public_access_cidrs     = ["0.0.0.0/0"]
+  node_group_name         = "jwt_node_group"
+  scaling_desired_size    = 1
+  scaling_max_size        = 1
+  scaling_min_size        = 1
+  instance_types          = ["t2.nano"]
+  key_pair                = "chave-terraform"
 }
 
-resource "aws_security_group" "ec2_sg" {
-  name        = "grupo-seguranca-ec2"
-  description = "Grupo de seguranca para instancias EC2 para permitir entrada HTTP e SSH e toda saida"
-
-  ingress {
-    description = "Permitir HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Permitir SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description = "Permitir todo o trafego de saida"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+module "vpc" {
+  source                  = "./modules/vpc"
+  instance_tenancy        = "default"
+  vpc_cidr                = "10.0.0.0/16"
+  access_ip               = "0.0.0.0/0"
+  public_sn_count         = 2
+  public_cidrs            = ["10.0.1.0/24", "10.0.2.0/24"]
+  map_public_ip_on_launch = true
+  rt_route_cidr_block     = "0.0.0.0/0"
   tags = {
-    Name = "Grupo de Seguranca Padrao EC2"
+    Name         = "jwt_node_group"
+    Environment  = "production"
   }
-}
 
-resource "aws_key_pair" "chave_deployer" {
-  key_name   = "chave-terraform"
-  public_key =  file("~/.ssh/id_rsa.pub")
-}
-
-resource "aws_instance" "instancia_ec2" {
-  ami                    = "ami-0c101f26f147fa7fd"
-  instance_type          = "t2.nano"
-  key_name               = aws_key_pair.chave_deployer.key_name
-  user_data              = file("user_data.sh")
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  tags = {
-    Name = "Instância Implantada via Terraform"
-  }
-}
-
-output "ip_publico" {
-  value       = aws_instance.instancia_ec2.public_ip
-  description = "O endereco IP publico da instancia EC2."
 }
