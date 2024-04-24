@@ -7,13 +7,13 @@ jobs:
     uses: mateusbrazza/backend-challenge/.github/workflows/aws_tf_plan.yml@main
     with:
       gh_environment: dev
-    env:
+    secrets:
       cli_config_credentials_token: ${{ secrets.TFC_API_TOKEN }}
 
   Apply:
     needs: Plan
-    uses: mateusbrazza/backend-challenge/.github/workflows/aws_tf_plan.yml@main
+    uses: mateusbrazza/backend-challenge/.github/workflows/aws_tf_appy.yml@main
     with:
       gh_environment: dev
-    env:
+    secrets:
       cli_config_credentials_token: ${{ secrets.TFC_API_TOKEN }}
