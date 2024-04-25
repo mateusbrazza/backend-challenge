@@ -91,7 +91,7 @@ jobs:
 
       - name: Expose Deployment
         run: kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
-      
+
       - name: Check Deployment Status
         run: |
           kubectl rollout status deployment/public-case-jwt -n elk
