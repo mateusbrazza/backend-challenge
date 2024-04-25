@@ -14,14 +14,14 @@ spec:
         app: logstash
     spec:
       containers:
-      - name: logstash
-        image: docker.elastic.co/logstash/logstash:7.10.0
-        ports:
-        - containerPort: 5044
-        volumeMounts:
-        - name: logstash-config
-          mountPath: /usr/share/logstash/pipeline
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:7.10.0
+          ports:
+            - containerPort: 5044
+          volumeMounts:
+            - name: logstash-config
+              mountPath: /usr/share/logstash/pipeline
       volumes:
-      - name: logstash-config
-        configMap:
-          name: logstash-config
+        - name: logstash-config
+          configMap:
+            name: logstash-config

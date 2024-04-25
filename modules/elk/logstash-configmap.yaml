@@ -10,6 +10,10 @@ data:
         port => 5044
       }
     }
+    filter {
+      if [kubernetes][labels][app] == "public-case-jwt" {
+      }
+    }
     output {
       elasticsearch {
         hosts => ["elasticsearch:9200"]

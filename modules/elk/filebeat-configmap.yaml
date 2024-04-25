@@ -6,10 +6,12 @@ metadata:
 data:
   filebeat.yml: |
     filebeat.inputs:
-    - type: log
-      enabled: true
-      paths:
-        - /var/log/*.log
+      - type: log
+        enabled: true
+        paths:
+          - /var/log/*.log  
+          - /path/to/your/logs/app/*.log  
+          - /path/to/other/logs/*.log  
 
     output.logstash:
       hosts: ["logstash:5044"]

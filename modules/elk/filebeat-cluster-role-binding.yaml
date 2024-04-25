@@ -4,9 +4,9 @@ metadata:
   name: filebeat-cluster-role-binding
   namespace: elk
 subjects:
-- kind: ServiceAccount
-  name: filebeat
-  namespace: default
+  - kind: ServiceAccount
+    name: filebeat
+    namespace: elk
 roleRef:
   kind: ClusterRole
   name: filebeat-cluster-role
