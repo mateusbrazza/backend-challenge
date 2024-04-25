@@ -1,0 +1,83 @@
+name: "Build_TF_Plan"
+on:
+  workflow_call:
+    inputs:
+      tf_version:
+        description: 'Specifies version of Terraform to use. e.g: 1.1.0 Default=latest.'
+        required: false
+        type: string
+        default: latest
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: false
+        type: string
+        default: null
+    secrets:
+      cli_config_credentials_token:
+        description: 'cli config credentials token'
+        required: true
+      aws_access_key_id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws_secret_access_key:
+        description: 'AWS Secret Access Key'
+        required: true
+
+jobs:
+  build-plan:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.2
+        with:
+          terraform_version: ${{ inputs.tf_version }}
+          cli_config_credentials_token: ${{ secrets.cli_config_credentials_token }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=plan
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Check for Changes
+        id: check
+        run: |
+          if [ "$(terraform show -json plan | jq -r '.resource_changes[].change.actions[]' | grep -v "no-op")" = "" ]; then
+            echo "No changes to apply"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            echo "Changes to apply"
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+          fi
+
+      - name: Upload Terraform Plan
+        if: env.HAS_CHANGES == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-plan
+          path: plan
