@@ -2,11 +2,11 @@ package com.backend.jwt.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
 
 import com.backend.jwt.service.JwtService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(JwtController.class)
-public class JwtControllerTest {
+public class JwtControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -26,26 +26,27 @@ public class JwtControllerTest {
     @MockBean
     private JwtService jwtService;
 
-
     @Test
-    void validateJwt_WhenJwtIsValid_ShouldReturnVerdadeiro() throws Exception {
-        String validToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";;
+    public void validateJwt_WhenJwtIsValid_ShouldReturnValidResponse() throws Exception {
+        String validToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";
         when(jwtService.validateJwt(validToken)).thenReturn(true);
 
         mockMvc.perform(get("/api/v1/validate")
                         .header("Authorization", "Bearer " + validToken))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Verdadeiro"));
+                .andExpect(jsonPath("$.valid", is(true)))
+                .andExpect(jsonPath("$.message", is("Token válido")));
     }
 
     @Test
-    void validateJwt_WhenJwtIsInvalid_ShouldReturnFalso() throws Exception {
+    public void validateJwt_WhenJwtIsInvalid_ShouldReturnErrorResponse() throws Exception {
         String invalidToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";
         when(jwtService.validateJwt(invalidToken)).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/validate")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Falso"));
+                .andExpect(jsonPath("$.valid", is(false)))
+                .andExpect(jsonPath("$.message", startsWith("JWT inválido")));
     }
 }

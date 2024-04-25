@@ -1,17 +1,14 @@
-name: "02-ELKStack"
-
+name: 02-ELKStack
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy-elkstack:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
@@ -67,8 +64,8 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: "11"
+          distribution: adopt
 
       - name: Run Tests
         run: mvn test
@@ -89,11 +86,12 @@ jobs:
           push: true
           tags: mateusbrazza/public-case-jwt:latest
 
-      - name: Deploy Application
-        run: |
-          kubectl set image deployment/public-case-jwt public-case-jwt=mateusbrazza/public-case-jwt:latest -n elk
-          kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+      - name: Update Deployment Image
+        run: kubectl set image deployment/public-case-jwt public-case-jwt=mateusbrazza/public-case-jwt:latest -n elk
 
+      - name: Expose Deployment
+        run: kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+      
       - name: Check Deployment Status
         run: |
           kubectl rollout status deployment/public-case-jwt -n elk
