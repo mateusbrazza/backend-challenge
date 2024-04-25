@@ -38,12 +38,13 @@ public class JwtControllerIntegrationTest {
 
     @Test
     void validateJwt_WhenJwtIsInvalid_ShouldReturnFalso() throws Exception {
-        String invalidToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4/n";
+        String invalidToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hbWUiOiJSZWJlY2EgVmllaXJhIn0.4guGRF5wjoNBVeRzSqjARu_blQWwQQ8qdDLxDFSkZH8";
         when(jwtService.validateJwt(invalidToken)).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/validate")
-                        .header("Authorzation", "Bearer " + invalidToken))
-                .andExpect(status().isBadRequest())
+                        .header("Authorization", "Bearer " + invalidToken))
+                .andExpect(status().isForbidden())
                 .equals(false);
     }
+
 }

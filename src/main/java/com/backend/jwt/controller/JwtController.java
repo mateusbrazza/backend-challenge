@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -43,23 +44,22 @@ public class JwtController {
      */
     @Operation(summary = "Validates a JWT", description = "Validates a JWT provided in the authorization header.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "JWT valid or invalid", content = @Content(schema = @Schema(implementation = Boolean.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request due to invalid format")
+            @ApiResponse(responseCode = "200", description = "JWT valid", content = @Content(schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(responseCode = "403", description = "JWT invalido", content = @Content(schema = @Schema(implementation = Boolean.class)))
     })
     @GetMapping
     public ResponseEntity<Boolean> validateJwt(
-
+            @RequestHeader("Authorization")
             @Pattern(regexp = "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$", message = "Invalid Authorization header format")
             String authorizationHeader) {
-
         String token = authorizationHeader.substring("Bearer ".length());
-        try {
             boolean isValid = jwtService.validateJwt(token);
-            logger.info("JWT validation result: {}", isValid);
-            return ResponseEntity.ok(isValid);
-        } catch (InvalidTokenException e) {
-            logger.error("JWT validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(false);
+            if (isValid) {
+                logger.info("JWT validation result: {}", isValid);
+                return ResponseEntity.ok(isValid);
+            } else {
+                logger.info("Invalid JWT: {}", token);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+            }
         }
-    }
 }
