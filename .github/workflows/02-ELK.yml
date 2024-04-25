@@ -1,6 +1,3 @@
-Com base nas informações fornecidas e na sua solicitação, o arquivo `.github/workflows/02-ELK.yml` com a etapa adicional para executar os testes ficaria assim:
-
-  ```yaml
 name: "02-ELKStack"
 on:
   push:
@@ -98,4 +95,3 @@ jobs:
         run: |
           kubectl create deployment public-case-jwt --image=mateusbrazza/public-case-jwt:latest -n elk
           kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
- 
