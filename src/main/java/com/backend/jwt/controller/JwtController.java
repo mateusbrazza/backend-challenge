@@ -1,6 +1,5 @@
 package com.backend.jwt.controller;
 
-import com.backend.jwt.response.ValidationResponse;
 import com.backend.jwt.service.JwtService;
 import com.backend.jwt.exception.InvalidTokenException;
 
@@ -36,7 +35,7 @@ public class JwtController {
      */
 
     @GetMapping
-    public ResponseEntity<ValidationResponse> validateJwt(
+    public ResponseEntity<String> validateJwt(
             @RequestHeader("Authorization") @Pattern(regexp = "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$", message = "Formato de Header de autorização inválido")
             String authorizationHeader) {
 
@@ -46,13 +45,13 @@ public class JwtController {
             boolean isValid = jwtService.validateJwt(token);
             if (isValid) {
                 logger.info("JWT válido: {}", token);
-                return ResponseEntity.ok(new ValidationResponse(true, "Token válido"));
+                return ResponseEntity.ok("Verdadeiro");
             } else {
                 throw new InvalidTokenException("JWT inválido: " + token);
             }
         } catch (InvalidTokenException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.badRequest().body(new ValidationResponse(false, e.getMessage()));
+            return ResponseEntity.badRequest().body("Falso");
         }
     }
 }

@@ -1,4 +1,4 @@
-name: "02-ELKStack"
+name: 02-ELKStack
 on:
   push:
     branches:
@@ -20,23 +20,17 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TFC_API_TOKEN }}
 
       - name: Terraform Init
-        id: init
         run: terraform init
 
       - name: Terraform Validate
-        id: validate
         run: terraform validate
 
       - name: Terraform Plan
-        id: plan
         run: terraform plan
         continue-on-error: true
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
       - name: Terraform Apply
+        if: steps.plan.outcome == 'success'
         run: terraform apply -auto-approve
 
       - name: Configure AWS Credentials
@@ -50,12 +44,10 @@ jobs:
         run: aws sts get-caller-identity
 
       - name: Install kubectl
-        run: |
-          sudo apt-get install -y kubectl
+        run: sudo apt-get install -y kubectl
 
       - name: Configure kubectl for AWS EKS
-        run: |
-          aws eks update-kubeconfig --name module-eks-CPxup
+        run: aws eks update-kubeconfig --name module-eks-CPxup
 
       - name: Wait for Resources
         run: sleep 30
@@ -67,15 +59,13 @@ jobs:
           kubectl apply -f . --validate=false
 
       - name: Verify kubectl configuration
-        run: |
-          sleep 30
-          kubectl get svc -n elk
+        run: kubectl get svc -n elk
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: "11"
+          distribution: adopt
 
       - name: Run Tests
         run: mvn test
@@ -96,7 +86,12 @@ jobs:
           push: true
           tags: mateusbrazza/public-case-jwt:latest
 
-      - name: Deploy Application
-        run:
-          kubectl set image deployment/public-case-jwt public-case-jwt=mateusbrazza/public-case-jwt:latest -n elk
-          kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+      - name: Update Deployment Image
+        run: kubectl set image deployment/public-case-jwt public-case-jwt=mateusbrazza/public-case-jwt:latest -n elk
+
+      - name: Expose Deployment
+        run: kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+      
+      - name: Check Deployment Status
+        run: |
+          kubectl rollout status deployment/public-case-jwt -n elk
