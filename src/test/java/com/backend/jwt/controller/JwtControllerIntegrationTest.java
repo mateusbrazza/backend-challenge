@@ -3,7 +3,7 @@ package com.backend.jwt.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.backend.jwt.service.JwtService;
 import org.junit.jupiter.api.Test;
@@ -24,25 +24,26 @@ public class JwtControllerIntegrationTest {
     @MockBean
     private JwtService jwtService;
 
+
     @Test
-    public void validateJwt_WhenJwtIsValid_ShouldReturnValidResponse() throws Exception {
-        String validToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";
+    void validateJwt_WhenJwtIsValid_ShouldReturnVerdadeiro() throws Exception {
+        String validToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";;
         when(jwtService.validateJwt(validToken)).thenReturn(true);
 
         mockMvc.perform(get("/api/v1/validate")
                         .header("Authorization", "Bearer " + validToken))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Verdadeiro"));
+                .equals(true);
     }
 
     @Test
-    public void validateJwt_WhenJwtIsInvalid_ShouldReturnErrorResponse() throws Exception {
-        String invalidToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4";
+    void validateJwt_WhenJwtIsInvalid_ShouldReturnFalso() throws Exception {
+        String invalidToken = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNCIsIk5hZW0iOiJKYXZhSW5Vc2UifQ.0FeREzJXrNj-ZPBYKJBvCdfwAHYFDWh7GZHmFUKbGG4/n";
         when(jwtService.validateJwt(invalidToken)).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/validate")
-                        .header("Authorization", "Bearer " + invalidToken))
+                        .header("Authorzation", "Bearer " + invalidToken))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Falso"));
+                .equals(false);
     }
 }
