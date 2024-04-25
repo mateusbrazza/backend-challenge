@@ -48,10 +48,7 @@ public class JwtController {
     })
     @GetMapping
     public ResponseEntity<Boolean> validateJwt(
-            @Parameter(description = "Authorization header containing the JWT",
-                    required = true,
-                    schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"))
-            @RequestHeader("Authorization")
+
             @Pattern(regexp = "^Bearer [A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$", message = "Invalid Authorization header format")
             String authorizationHeader) {
 
