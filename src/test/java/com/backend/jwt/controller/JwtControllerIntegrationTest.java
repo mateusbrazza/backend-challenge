@@ -2,9 +2,8 @@ package com.backend.jwt.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.*;
 
 import com.backend.jwt.service.JwtService;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,8 +32,7 @@ public class JwtControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/validate")
                         .header("Authorization", "Bearer " + validToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.valid", is(true)))
-                .andExpect(jsonPath("$.message", is("Token válido")));
+                .andExpect(content().string("Verdadeiro"));
     }
 
     @Test
@@ -46,7 +43,6 @@ public class JwtControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/validate")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.valid", is(false)))
-                .andExpect(jsonPath("$.message", startsWith("JWT inválido")));
+                .andExpect(content().string("Falso"));
     }
 }
