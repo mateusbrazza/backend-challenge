@@ -92,12 +92,17 @@ jobs:
       - name: Check and Update Service
         run: |
           if kubectl get svc public-case-jwt -n elk; then
-            echo "Service exists. Updating service settings if necessary."
-            
+            echo "Service exists. Checking and updating service settings if necessary."
+            # Add your logic here to check and update the service if necessary
+            # For example:
+            # kubectl apply -f your-service.yaml -n elk
           else
             echo "Service does not exist. Creating one."
             kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
           fi
+
+      - name: Restart Pods
+        run: kubectl rollout restart deployment -n elk
 
       - name: Check Deployment Status
         run: |
