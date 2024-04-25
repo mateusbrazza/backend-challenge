@@ -98,5 +98,5 @@ jobs:
 
       - name: Deploy Application
         run: |
-          kubectl create deployment public-case-jwt --image=mateusbrazza/public-case-jwt:latest -n elk
+          kubectl apply deployment public-case-jwt --image=mateusbrazza/public-case-jwt:latest -n elk
           kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
