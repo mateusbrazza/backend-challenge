@@ -57,7 +57,7 @@ jobs:
 
       - name: Configure kubectl for AWS EKS
         run: |
-          aws eks update-kubeconfig --name module-eks-7V1EN
+          aws eks update-kubeconfig --name module-eks-CPxup
 
       - name: Wait for Resources
         run: sleep 30
