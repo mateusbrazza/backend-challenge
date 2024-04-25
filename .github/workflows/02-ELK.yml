@@ -89,8 +89,13 @@ jobs:
       - name: Update Deployment Image
         run: kubectl set image deployment/public-case-jwt public-case-jwt=mateusbrazza/public-case-jwt:latest -n elk
 
-      - name: Expose Deployment
-        run: kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+      - name: Expose Deployment if Not Already Exposed
+        run: |
+          if ! kubectl get svc public-case-jwt -n elk; then
+            kubectl expose deployment public-case-jwt --type=LoadBalancer --port=8080 -n elk
+          else
+            echo "Service already exists. Skipping expose."
+          fi
       
       - name: Check Deployment Status
         run: |
